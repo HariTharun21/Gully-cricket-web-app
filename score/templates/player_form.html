@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block hero %}{% endblock %}
+{% block make_match %}{% endblock %}
+{% block content %}
+<h1>{{ form.instance.pk|yesno:"Edit Player,Add Player" }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p}}
+    
+    <button type="submit" class="btn btn-success">save</button>
+</form>
+
+<a href="{% url 'player_list' %}">Back</a>
+{% endblock %}

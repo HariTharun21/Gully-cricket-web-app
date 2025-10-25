@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block hero %}{% endblock %}
+{% block header %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-success px-3">
+  <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+    <img src="{% static 'images/bat-icon.jpg' %}" alt="Bat Icon" width="30" class="me-2">
+    <span class="fs-4">Gully Cricket</span>
+  </a>
+  <span class="ms-auto text-white"><b>match_num : </b>{{ match.match_number }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .score-btn { font-size: 20px; padding: 15px 20px; margin: 5px; border-radius: 12px; min-width: 60px; }
+    .scoreboard { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; background:lightgrey; padding: 10px; border-radius: 10px; }
+    .popup { display:none; position: fixed; top: 30%; left:40%; background:#fff; padding:20px; border:1px solid #000; border-radius:10px; }
+</style>
+
+<div class="container mt-3">
+    <h2>Over {{ over.number }} - {{ match.match_number }}</h2>
+
+    <!-- Scoreboard -->
+    <div>
+      <span id="bat_icon1">🏏</span> 
+      <span id="striker-name">{{ striker.name }}</span> 
+      <span id="striker-runs">0</span> 
+      (Balls: <span id="striker-balls">0</span>)
+      <button class="btn btn-warning" onclick="changeStrike()">changeStrike</button>
+      <span style="text-align: left; margin-left: 100px;" id="bowler_name">Bowler:{{bowler.name}}</span>
+    </div>
+
+    <div>
+      <span id="non-striker-name" style="margin-left: 25px;">{{ non_striker.name }}</span> 
+      <span id="non-striker-runs">0</span> 
+      (Balls: <span id="non-striker-balls">0</span>)
+    </div>
+
+    <!-- Over Summary -->
+    <div class="mt-3">
+        <h5>Over Summary:</h5>
+        <div id="over-summary" style="background-color:#198754; color:white; padding:5px; border-radius:8px;"></div>
+    </div>
+
+    <!-- Score Buttons -->
+    <div>
+        <button class="btn btn-success score-btn" onclick="addRun(0)">0</button>
+        <button class="btn btn-success score-btn" onclick="addRun(1)">1</button>
+        <button class="btn btn-success score-btn" onclick="addRun(2)">2</button>
+        <button class="btn btn-success score-btn" onclick="addRun(3)">3</button>
+        <button class="btn btn-success score-btn" onclick="addRun(4)">4</button>
+        <button class="btn btn-success score-btn" onclick="addRun(6)">6</button>
+        <button class="btn btn-danger score-btn" onclick="addWicket()">W</button>
+        <button class="btn btn-warning score-btn" onclick="openNbPopup()">NB</button><br>
+        <button class="btn-secondary score-btn" onclick="undo()">undo</button>
+        <div> <button class="btn btn-success score-btn" onclick="newbowler_pop_up()">✅ Complete Over</button> </div>
+    </div>
+</div>
+
+<!-- New player popup -->
+<div id="newplayer-popup" class="popup">
+    <h4>Select New Player</h4>
+    <select id="newPlayerSelect" required>
+        <option value="" disabled selected>-----</option>
+        {% for player in remaining_batters %}
+            <option value="{{ player.id }}">{{ player.name }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <button type="button" class="btn btn-success" onclick="submitWicketForm()">Confirm</button>
+</div>
+
+
+<!-- No Ball Popup -->
+<div id="nb-popup" class="popup">
+    <h4>No Ball</h4>
+    <label>Runs from No Ball: </label>
+    <input type="number" id="nb-runs" min="0" value="0">
+    <br><br>
+    <button class="btn btn-success" onclick="confirmNoBall()">Confirm</button>
+    <button class="btn btn-secondary" onclick="closeNbPopup()">Cancel</button>
+</div>
+
+<!--new bowler popup-->
+<div id="new_bowler_pop-up" class="popup">
+    <h4>Select New Bowler </h4>
+    <select id="new_bowler" required>
+        {% for bowler in bowler_list %}
+            <option value="{{bowler.id}}">{{bowler.name}}</option>
+        {% endfor %}
+    </select>
+    <button type="button" class="btn btn-success" onclick="submitOverData()">Submit</button>
+</div>
+
+
+<!-- Undo Wicket Popup -->
+<div id="undo-wicket-popup" class="popup">
+    <h4>Undo Wicket – Select Previous Striker</h4>
+    <select id="undoPlayerSelect" required>
+        <option value="" disabled selected>-----</option>
+        {% for player in outed_players %}   
+            <option value="{{ player.id }}">{{ player.name }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <button type="button" class="btn btn-success" onclick="confirmUndoWicket()">Confirm</button>
+    <button type="button" class="btn btn-secondary" onclick="closeUndoWicket()">Cancel</button>
+</div>
+
+
+<script>
+    // Initial Stats from Django
+    let strikerStats = { 
+        name: "{{ striker.name }}", 
+        runs: 0, 
+        balls: 0,
+        player_id : "{{ striker.id }}" 
+    };
+
+    let nonStrikerStats = { 
+        name: "{{ non_striker.name }}", 
+        runs: 0, 
+        balls: 0,
+        player_id : "{{ non_striker.id }}"
+    };
+    let bowler={name:"{{bowler.name}}",id:"{{bowler.id}}"};
+
+    let overSummary = [];
+    let n = 6;
+    let nb = getElementById("nb-runs").value;
+
+    function updateStatsUI() {
+        document.getElementById("striker-name").textContent = strikerStats.name;
+        document.getElementById("striker-runs").textContent = strikerStats.runs;
+        document.getElementById("striker-balls").textContent = strikerStats.balls;
+
+        document.getElementById("non-striker-name").textContent = nonStrikerStats.name;
+        document.getElementById("non-striker-runs").textContent = nonStrikerStats.runs;
+        document.getElementById("non-striker-balls").textContent = nonStrikerStats.balls;
+
+        document.getElementById("over-summary").textContent = overSummary.join(" | ");
+    }
+
+    function changeStrike() {
+        [strikerStats, nonStrikerStats] = [nonStrikerStats, strikerStats];
+        updateStatsUI();
+    }
+
+    function updateOverSummary(event) {
+        overSummary.push(event);
+        if (overSummary.length === n) {
+            alert("Over completed! Please click on Complete Over.");
+        }
+    }
+
+    // 🔹 Save ball instantly to Django using fetch
+   function saveBallToServer(event, extraData = {}) {
+    fetch(`/update_ball/{{ match.id }}/{{ over.id }}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            striker_id: strikerStats.player_id,
+            non_striker_id: nonStrikerStats.player_id,
+            bowler_id: "{{ bowler.id }}",
+            
+            event: event,
+            ...extraData // ✅ Merge extra fields like over_summary, new_bowler_id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Ball saved:", data);
+        if (data.status === "success" && event === "OVER") {
+            alert("Over submitted successfully!");
+            if (data.new_over_id) {
+            window.location.href = `/over_score/{{ match.id }}/${data.new_over_id}/${strikerStats.player_id}/${nonStrikerStats.player_id}/${data.new_bowler_id}/`;
+        } // optionally refresh for new over
+        }
+    })
+    .catch(err => console.error("Error:", err));
+}
+
+
+    // -------- Scoring Buttons --------
+    function addRun(runs) {
+        strikerStats.runs += runs;
+        strikerStats.balls++;
+        updateOverSummary(runs);
+        updateStatsUI();
+
+        if (runs % 2 !== 0) changeStrike();
+
+        saveBallToServer(runs.toString());
+    }
+
+    function addWicket() {
+        strikerStats.balls++;
+        updateOverSummary("W");
+        updateStatsUI();
+
+        // show popup for new player
+        document.getElementById("newplayer-popup").style.display = "block";
+
+        saveBallToServer("W", { outed_player: strikerStats });
+    }
+
+    function submitWicketForm() {
+        let new_player_id = document.getElementById("newPlayerSelect").value;
+        if (!new_player_id) {
+            alert("Please select a new player!");
+            return;
+        }
+        let new_player_name = document.querySelector(`#newPlayerSelect option[value="${new_player_id}"]`).text;
+
+        strikerStats = {
+            name: new_player_name,
+            runs: 0,
+            balls: 0,
+            player_id: new_player_id
+        };
+
+        updateStatsUI();
+        document.getElementById("newplayer-popup").style.display = "none";
+    }
+
+    function openNbPopup() {
+        document.getElementById("nb-popup").style.display = "block";
+        n += 1; // NB means extra ball
+    }
+
+    function closeNbPopup() {
+        document.getElementById("nb-popup").style.display = "none";
+    }
+
+    function confirmNoBall() {
+        let nbRuns = parseInt(document.getElementById("nb-runs").value) || 0;
+        strikerStats.runs += nbRuns;
+        updateOverSummary(`NB+${nbRuns}`);
+        if (nbRuns % 2 !== 0) changeStrike();
+        updateStatsUI();
+        closeNbPopup();
+        saveBallToServer(`NB+${nbRuns}`);
+    }
+
+    function undo() {
+    if (overSummary.length === 0) {
+        alert("No action to undo!");
+        return;
+    }
+
+    let lastAction = overSummary.pop(); // remove last event
+
+    if (!isNaN(lastAction)) {
+        // It was a run
+        let runs = parseInt(lastAction);
+        strikerStats.runs -= runs;
+        strikerStats.balls--;
+        if (runs % 2 !== 0) changeStrike();
+
+    } else if (lastAction === "W") {
+        // Undo wicket → open manual player selection popup
+        strikerStats.balls--;
+        document.getElementById("undo-wicket-popup").style.display = "block";
+        return; // wait for confirm
+    } else if (lastAction.startsWith("NB")) {
+        // Undo No Ball
+        let nbRuns = parseInt(lastAction.split("+")[1]) || 0;
+        strikerStats.runs -= nbRuns;
+        n -= 1;
+        if (nbRuns % 2 !== 0) changeStrike();
+    }
+
+    updateStatsUI();
+}
+
+function confirmUndoWicket() {
+    let player_id = document.getElementById("undoPlayerSelect").value;
+    if (!player_id) {
+        alert("Please select a player!");
+        return;
+    }
+    let player_name = document.querySelector(`#undoPlayerSelect option[value="${player_id}"]`).text;
+
+    strikerStats = {
+        name: player_name,
+        runs: 0,   // You may load his old runs/balls from DB if needed
+        balls: 0,
+        player_id: player_id
+    };
+
+    updateStatsUI();
+    closeUndoWicket();
+}
+
+function closeUndoWicket() {
+    document.getElementById("undo-wicket-popup").style.display = "none";
+}
+
+function newbowler_pop_up(){
+    document.getElementById("new_bowler_pop-up").style.display = "block";
+}
+
+function submitOverData() {
+    let over_data = overSummary.join(", ");  
+    let select = document.getElementById("new_bowler");
+    let new_bowler_id = select.value;
+
+    if (!new_bowler_id) {
+        alert("Please select a new bowler!");
+        return;
+    }
+
+    // ✅ Update bowler object
+    bowler.name = select.options[select.selectedIndex].text;
+    bowler.id = new_bowler_id;
+    bowler_id = new_bowler.id;
+
+    // ✅ Update bowler name on UI immediately
+    document.getElementById("bowler_name").textContent = "Bowler: " + bowler.name;
+
+    // ✅ Save to backend
+    saveBallToServer("OVER", { 
+        over_summary: over_data, 
+        new_bowler_id: new_bowler_id 
+    });
+    overSummary = [];
+    n = 6;
+    updateStatsUI();
+
+
+    // Close popup
+    document.getElementById("new_bowler_pop-up").style.display = "none";
+}
+ 
+
+</script>
+
+{% endblock %}

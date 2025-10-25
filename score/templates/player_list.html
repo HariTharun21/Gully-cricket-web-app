@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block make_match %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Players</h2>
+
+  <!-- Search Form -->
+  <form method="get" class="mb-3 d-flex align-items-center gap-2">
+    {{ search_form.as_p }}
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <!-- Player Table -->
+  {% if players %}
+  <table class="table table-bordered table-striped">
+    <thead class="table-success">
+      <tr>
+        <th>Name</th>
+        <th>Runs</th>
+        <th>Wickets</th>
+        <th>Matches</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in players %}
+      <tr>
+        <td>{{ player.name }}</td>
+        <td>{{ player.total_runs }}</td>
+        <td>{{ player.total_wickets }}</td>
+        <td>{{ player.total_matches }}</td>
+        <td>
+          <a href="{% url 'player_edit' player.id %}" class="btn btn-sm btn-warning">Edit</a>
+
+          <!-- Delete Button triggers modal -->
+          <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ player.id }}">
+            Delete
+          </button>
+
+          <!-- Delete Modal -->
+          <div class="modal fade" id="deleteModal{{ player.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ player.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form method="post" action="{% url 'player_delete' player.id %}">
+                  {% csrf_token %}
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel{{ player.id }}">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you want to delete <strong>{{ player.name }}</strong>?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No players found.</p>
+  {% endif %}
+
+  <!-- Add Player Button -->
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPlayerModal">➕ Add Player</button>
+
+  <!-- Add Player Modal -->
+  <div class="modal fade" id="addPlayerModal" tabindex="-1" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="addPlayerModalLabel">Add Player</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            {{ add_form.as_p }}
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Add</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

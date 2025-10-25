@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Pending Access Requests</h3>
+
+    {% if requests %}
+        <table class="table table-bordered mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Requester</th>
+                    <th>Resource</th>
+                    <th>Requested At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.requester.username }}</td>
+                    <td>
+                        {% if req.match %}Match {{ req.match.match_number }}
+                        {% elif req.player %}Player {{ req.player.name }}
+                        {% elif req.team %}Team {{ req.team.name }}{% endif %}
+                    </td>
+                    <td>{{ req.requested_at|date:"d M Y H:i" }}</td>
+                    <td>
+                        <form method="post" style="display:inline-block;">
+                            {% csrf_token %}
+                            <input type="hidden" name="request_id" value="{{ req.id }}">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No pending requests.</p>
+    {% endif %}
+</div>
+{% endblock %}

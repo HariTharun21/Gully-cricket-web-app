@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-success px-3">
+  <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+    <img src="{% static 'images/bat-icon.jpg' %}" alt="Bat Icon" width="30" class="me-2">
+    <span class="fs-4">Gully Cricket</span>
+    </a>
+    <span class="ms-auto text-white"><b>match_num : </b>{{match.match_number}}</span>
+  </nav>
+{% endblock %}
+
+
+{% block hero %}{% endblock %}
+{% block make_match %}{% endblock %}
+
+{% block content %}
+
+<style>
+  .container{
+    text-align: center;
+    h2{color:#198754; }
+      
+  h3{color:black; }
+  }
+  
+  .main {
+    font-weight: bold;
+  }
+  select{ width: 200px; margin: 20xp; color:black; background-color:aliceblue;}
+  button{ background-color: #198754; color: white;}
+</style>
+<div class="container">
+<h2>Start Over</h2><br><br>
+<h3>Batting Team</h3><br>
+<div class ="main">
+<form method="post">
+  {% csrf_token %}
+  
+  <label>Striker:</label>
+  <select name="striker" id="striker" onchange="playeroption()">
+    {% for player in batters %}
+      <option value="{{ player.id }}">{{ player.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label>Non-Striker:</label>
+  <select name="non_striker" id="non_striker" onchange="playeroption()">
+    {% for player in batters %}     
+      <option value="{{ player.id }}" >{{ player.name }}</option>
+    {% endfor %}
+  </select><br><br>
+  <h3>Bowling Team</h3><br>
+
+  <label>Bowler:</label>
+  <select name="bowler">
+    {% for player in bowlers %}
+      <option value="{{ player.id }}">{{ player.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <button type="submit">Start Over</button>
+</form>
+</div>
+</div>
+<script>
+  function playeroption(){
+  let x = document.getElementById("striker").value;
+  let options = document.querySelectorAll("#non_striker option");
+  
+    options.forEach(option => {
+      option.style.display = "block";
+      if (option.value === x) {
+        option.style.display = "none";
+      }
+    });
+  }
+    
+  
+</script>
+{% endblock %}
+

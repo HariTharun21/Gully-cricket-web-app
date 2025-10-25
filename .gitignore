@@ -1,0 +1,118 @@
+# =====================================
+# 🎯 Django + OracleDB Project .gitignore
+# =====================================
+
+# --- Python Compiled / Cache Files ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Django Specific Files ---
+*.log
+db.sqlite3
+# Ignore local DB settings or sensitive info
+local_settings.py
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# --- Oracle DB Specific ---
+# (Oracle connections use DSN or tnsnames.ora, so skip local configs)
+*.ora
+*.sqlnet.ora
+*.wallet/
+*.dmp
+*.log
+*.trc
+*.trm
+
+# --- Environment / Secrets ---
+.env
+*.env
+.env.*
+!example.env     # if you want to keep a sample env file
+
+# --- Virtual Environment ---
+venv/
+env/
+ENV/
+.venv/
+.env/
+Scripts/
+Include/
+Lib/
+bin/
+pyvenv.cfg
+
+# --- Static and Media (auto generated at runtime) ---
+staticfiles/
+media/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- OS Generated Files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Unit Test / Coverage ---
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test_results/
+junit*.xml
+
+# --- Deployment Files (optional) ---
+*.pid
+*.seed
+*.bak
+*.backup
+*.old
+*.swp
+*.swo
+
+# --- Docker / Container ---
+Dockerfile
+docker-compose.yml
+*.dockerfile
+*.dockerenv
+
+# --- Temporary Files ---
+tmp/
+temp/
+logs/
+*.tmp
+
+# --- Migrations Cache (optional) ---
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/*.bak
+*/migrations/*.swp
+*/migrations/*.swo
+
+# --- NodeJS / Frontend (if using React or JS in static folder) ---
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# --- JetBrains IDE (PyCharm, IntelliJ, etc.) ---
+.idea/
+*.iml
+out/

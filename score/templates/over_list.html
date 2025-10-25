@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Overs</h2>
+  <ul>
+    {% for over in overs %}
+      <li>Over {{ over.id }} - Bowler: {{ over.bowler }} | Match: {{ over.match }}
+        <a href="{% url 'over_edit' over.id %}">Edit</a> |
+        <a href="{% url 'over_delete' over.id %}">Delete</a>
+      </li>
+    {% empty %}
+      <li>No overs recorded.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'over_add' %}" class="btn btn-success">Add Over</a>
+{% endblock %}

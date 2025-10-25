@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}{% endblock %}
+{% block hero %}{% endblock %}
+{% block make_match %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-success mb-4 text-center">🪙 Toss - Choose Who Won</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Toss Winner Selection -->
+        <div class="mb-3">
+            <label class="form-label">Toss Won By</label>
+            <select name="toss_winner" class="form-select" required>
+                <option value="{{ match.team1.id }}">{{ match.team1.name }}</option>
+                <option value="{{ match.team2.id }}">{{ match.team2.name }}</option>
+            </select>
+        </div>
+
+        <!-- Decision: Bat or Bowl -->
+        <div class="mb-3">
+            <label class="form-label">Decision</label>
+            <select name="decision" class="form-select" required>
+                <option value="bat">Bat</option>
+                <option value="bowl">Bowl</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">🎯 Save Toss Decision</button>
+    </form>
+</div>
+{% endblock %}

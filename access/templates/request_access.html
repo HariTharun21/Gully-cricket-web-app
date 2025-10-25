@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Request Access</h3>
+    <p>Requesting access to:</p>
+    <ul>
+        {% if match %}<li>Match {{ match.match_number }}</li>{% endif %}
+        {% if player %}<li>Player {{ player.name }}</li>{% endif %}
+        {% if team %}<li>Team {{ team.name }}</li>{% endif %}
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Send Access Request</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

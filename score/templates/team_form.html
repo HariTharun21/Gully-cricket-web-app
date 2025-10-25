@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block make_match %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Team: {{ team.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.name.label_tag }}<br>
+            {{ form.name }}
+        </div>
+
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'team_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block hero %}{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-success">🏏 Teams</h2>
+        <a href="{% url 'team_create' %}" class="btn btn-success rounded-pill px-4">➕ Create Team</a>
+    </div>
+
+    {% if teams %}
+    <div class="accordion" id="teamAccordion">
+        {% for team in teams %}
+        <div class="accordion-item shadow rounded-3 mb-3">
+            <h2 class="accordion-header" id="heading{{ team.id }}">
+                <div class="d-flex justify-content-between align-items-center p-2">
+                    <button class="accordion-button collapsed flex-grow-1" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ team.id }}" aria-expanded="false"
+                            aria-controls="collapse{{ team.id }}">
+                        {{ team.name }}
+                    </button>
+                    <a href="{% url 'team_players' team.id %}" class="btn btn-outline-primary btn-sm ms-3">
+                        🛠 Edit Players
+                    </a>
+                </div>
+            </h2>
+            <div id="collapse{{ team.id }}" class="accordion-collapse collapse"
+                 aria-labelledby="heading{{ team.id }}" data-bs-parent="#teamAccordion">
+                <div class="accordion-body">
+                    <h6 class="text-muted mb-2">Players:</h6>
+                    {% if team.players.all %}
+                        <ul class="list-group">
+                            {% for player in team.players.all %}
+                            <li class="list-group-item">{{ player.name }}</li>
+                            {% empty %}
+                            <li class="list-group-item text-muted">No players in this team.</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No players assigned to this team.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">No teams found.</div>
+    {% endif %}
+</div>
+{% endblock %}

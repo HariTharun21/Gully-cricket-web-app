@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block hero %}
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Matches</h2>
+
+    {% if matches %}
+        <div class="list-group">
+            {% for match in matches %}
+                {% if match.id %}
+                    <a href="{% url 'match_list' %}" class="list-group-item list-group-item-action">
+                        <strong>Match {{ match.match_number }}</strong> – {{ match.team1 }} vs {{ match.team2 }}
+                    </a>
+                {% else %}
+                    <div class="list-group-item text-muted">
+                        <strong>Match data missing</strong>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No matches available.</p>
+    {% endif %}
+</div>
+{% endblock %}

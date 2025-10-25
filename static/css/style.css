@@ -1,0 +1,70 @@
+/* General Styling */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.6rem;
+}
+
+.navbar-brand img {
+    width: 32px;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* Navbar links */
+.nav-link {
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+.dropdown-menu {
+    background-color: #f0f0f0;
+}
+
+.dropdown-item:hover {
+    background-color: #e0e0e0;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-top: 4px solid #198754;
+}
+
+.hero-section img {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section blockquote {
+    font-size: 1.4rem;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+.hero-section p.lead {
+    font-size: 1.1rem;
+    margin-top: 15px;
+    color: #333;
+}
